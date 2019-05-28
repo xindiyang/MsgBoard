@@ -35,10 +35,6 @@
     </div>
     {{else}}
     <form>
-      <!-- <div class="form-group">
-        <label for="txt_name">称呼：</label>
-        <input name="username" class="form-control" id="txt_name" type="text">
-      </div> -->
       <div class="form-group">
         <label for="txt_content">留言：</label>
         <textarea name="content" class="form-control" id="txt_content" cols="80" rows="4"></textarea>
@@ -56,7 +52,6 @@
         type: 'POST',
         url: '/addMsg',
         data: {
-          // username: username,
           content: content
         },
         success: function (res) {

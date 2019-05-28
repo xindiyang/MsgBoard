@@ -18,7 +18,7 @@
     <ul id="messages" class="list-unstyled">
       {{each arr}}
       <li class="media">
-        <img class="mr-3" src="./myup/{{$value.picture}}" />
+        <img class="mr-3" src="./myup/{{$value.picture}}" width="150"/>
         <div class="media-body">
           <h4>{{$value.username}}</h4>
           <p>{{$value.content}}</p>
@@ -34,7 +34,10 @@
       <p>点击<a id="show_box" href="javascript:;">登录</a>，发表你的留言吧~</p>
     </div>
     {{else}}
-    <form>
+    
+    <form><div id="exitMsg">
+      <p>欢迎您进入留言板,请文明用语，少开车...<a id="exit" href="#">退出</a></p>
+    </div>
       <div class="form-group">
         <label for="txt_content">留言：</label>
         <textarea name="content" class="form-control" id="txt_content" cols="80" rows="4"></textarea>
@@ -70,6 +73,7 @@
                     <a href="/delete?id=${res.id}">删除</a>
                   </li>`;
             $('#messages').append(new_msg);
+            location.reload();
           }
         }
       })
@@ -117,7 +121,6 @@
       }, function (res) {
         console.log(res);
         if (res === 'ok') {
-          // $('#abc').hide().next().show();
           //隐藏登录界面
           layer.close(index);
           // 刷新页面
@@ -145,7 +148,7 @@
     </form>
   `;
     var flag;
-    $('#messages').on('click', '#edit',  (e)=> {
+    $('#messages').on('click', '#edit', (e) => {
       let id = e.currentTarget.attributes[0].value;
       //页面层，将该层用index表示
       flag = layer.open({
@@ -157,36 +160,48 @@
       });
       //发送ajax请求
       $.ajax({
-        url:'/getMsgById',
-        type:'get',
-        data:{id:id},
-        success:function(res){
+        url: '/getMsgById',
+        type: 'get',
+        data: {
+          id: id
+        },
+        success: function (res) {
           $('#user').val(res.username)
           $('#content').val(res.content)
           $('#hidden').val(res.id)
         }
       })
     })
-
   </script>
   <!-- 修改功能实现 -->
   <script>
-    $('body').on('click','#put',function(){
+    $('body').on('click', '#put', function () {
       // 获取表单数据
-        let name = $('#user').val();
-        let content = $('#content').val();
-        let id = $('#hidden').val();
-        $.ajax({
-          url:'/updataMsg',
-          type:'POST',
-          data:{username:name,content:content,id:id},
-          success:function(res){
-            if(res==='ok'){
-              location.reload();
-            }
+      let name = $('#user').val();
+      let content = $('#content').val();
+      let id = $('#hidden').val();
+      $.ajax({
+        url: '/updataMsg',
+        type: 'POST',
+        data: {
+          username: name,
+          content: content,
+          id: id
+        },
+        success: function (res) {
+          if (res === 'ok') {
+            location.reload();
           }
-        });
+        }
+      });
     })
   </script>
+  <!-- 退出功能 -->
+  <script>
+  $('#exit').click(function(){
+    alert('恕小弟无能，无法完成退出功能，片刻之后我来完成');
+  })
+  </script>
 </body>
+
 </html>

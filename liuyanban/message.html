@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>留言板</title>
+  <link rel="stylesheet" href="./assets/bootstrap.css">
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/layer.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="display-1">留言板</h1>
+    <hr>
+    <ul id="messages" class="list-unstyled">
+      {{each arr}}
+      <li class="media">
+        <img class="mr-3" src="./myup/{{$value.picture}}" />
+        <div class="media-body">
+          <h4>{{$value.username}}</h4>
+          <p>{{$value.content}}</p>
+          <p>{{$value.time}}</p>
+        </div>
+        <span data={{$value.id}} id="edit">修改</span>|
+        <a href="/delete?id={{$value.id}}">删除</a>
+      </li>
+      {{/each}}
+    </ul>
+    {{if !isLogin}}
+    <div id="abc">
+      <p>点击<a id="show_box" href="javascript:;">登录</a>，发表你的留言吧~</p>
+    </div>
+    {{else}}
+    <form>
+      <!-- <div class="form-group">
+        <label for="txt_name">称呼：</label>
+        <input name="username" class="form-control" id="txt_name" type="text">
+      </div> -->
+      <div class="form-group">
+        <label for="txt_content">留言：</label>
+        <textarea name="content" class="form-control" id="txt_content" cols="80" rows="4"></textarea>
+      </div>
+      <button type="button" id="btn_send" class="btn btn-primary">提交</button>
+    </form>
+    {{/if}}
+  </div>
+  <!-- 添加数据 -->
+  <script>
+    $('#btn_send').click(function () {
+      var username = $('#txt_name').val();
+      var content = $('#txt_content').val();
+      $.ajax({
+        type: 'POST',
+        url: '/addMsg',
+        data: {
+          // username: username,
+          content: content
+        },
+        success: function (res) {
+          if (res === 'fail') {
+            alert('添加失败');
+          } else {
+            var new_msg = `
+                  <li class="media">
+                    <img class="mr-3" src="./myup/${res.picture}" />
+                    <div class="media-body">
+                      <h4>${res.username}</h4>
+                      <p>${res.content}</p>
+                      <p>${res.time}</p>
+                    </div>
+                    <span data=${res.id} id="edit">修改</span>|
+                    <a href="/delete?id=${res.id}">删除</a>
+                  </li>`;
+            $('#messages').append(new_msg);
+          }
+        }
+      })
+      $('#txt_name').val('');
+      $('#txt_content').val('')
+    });
+  </script>
+  <!-- 登录功能界面显示 -->
+  <script>
+    let content = `
+  <form style="margin:20px 0 0 60px">
+      <div class="form-group">
+        <label for="user" stype="display:inline;">账号：</label>
+        <input name="username" type="text" class="form-control" id="user" style="display:inline;width:200px;" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label for="password" style="display:inline;">密码：</label>
+        <input name="password" type="text" class="form-control" id="password" style="display:inline;width:200px;"
+          autocomplete="off" />
+      </div>
+      <button id="login" type="button" class="btn btn-primary" style="margin-left: 80px;">登录</button>
+      <span>还没账号，马上<a href="/register.html">注册</a></span>
+    </form>
+  `;
+    var index; // 设置一个全局变量
+    $('#show_box').click(function () {
+      //页面层，将该层用index表示
+      index = layer.open({
+        type: 1,
+        title: '登录',
+        skin: 'layui-layer-rim', //加上边框
+        area: ['420px', '280px'], //宽高
+        content: content
+      });
+    });
+  </script>
+  <!-- 登录功能实现 -->
+  <script>
+    $('body').on('click', '#login', function () {
+      var zhanghao = $('#user').val();
+      var pwd = $('#password').val();
+      $.post('/checkUser', {
+        zhanghao: zhanghao,
+        pwd: pwd
+      }, function (res) {
+        console.log(res);
+        if (res === 'ok') {
+          // $('#abc').hide().next().show();
+          //隐藏登录界面
+          layer.close(index);
+          // 刷新页面
+          location.reload();
+        } else if (res === 'fail') {
+          layer.msg('登录失败');
+        }
+      })
+    })
+  </script>
+  <!-- 修改页面功能显示界面实现 -->
+  <script>
+    let str = `<form style="margin:20px 0 0 60px">
+      <div class="form-group">
+        <label for="user" stype="display:inline;">昵称：</label>
+        <input name="username" type="text" class="form-control" id="user" style="display:inline;width:200px;" autocomplete="off" />
+      </div>
+      <div class="form-group">
+        <label for="content" style="display:inline;">内容：</label>
+        <input name="content" type="text" class="form-control" id="content" style="display:inline;width:200px;"
+          autocomplete="off" />
+      </div>
+      <input type="hidden" id="hidden" name="id">
+      <button id="put" type="button" class="btn btn-primary" style="margin-left: 80px;">修改</button>
+    </form>
+  `;
+    var flag;
+    $('#messages').on('click', '#edit',  (e)=> {
+      let id = e.currentTarget.attributes[0].value;
+      //页面层，将该层用index表示
+      flag = layer.open({
+        type: 1,
+        title: '更新数据',
+        skin: 'layui-layer-rim', //加上边框
+        area: ['420px', '280px'], //宽高
+        content: str
+      });
+      //发送ajax请求
+      $.ajax({
+        url:'/getMsgById',
+        type:'get',
+        data:{id:id},
+        success:function(res){
+          $('#user').val(res.username)
+          $('#content').val(res.content)
+          $('#hidden').val(res.id)
+        }
+      })
+    })
+
+  </script>
+  <!-- 修改功能实现 -->
+  <script>
+    $('body').on('click','#put',function(){
+      // 获取表单数据
+        let name = $('#user').val();
+        let content = $('#content').val();
+        let id = $('#hidden').val();
+        $.ajax({
+          url:'/updataMsg',
+          type:'POST',
+          data:{username:name,content:content,id:id},
+          success:function(res){
+            if(res==='ok'){
+              location.reload();
+            }
+          }
+        });
+    })
+  </script>
+</body>
+</html>

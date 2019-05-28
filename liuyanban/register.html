@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>留言板</title>
+  <link rel="stylesheet" href="./assets/bootstrap.css">
+  <script src="./assets/jquery.min.js"></script>
+  <script src="./assets/layer.js"></script>
+</head>
+
+<body>
+  <div class="container">
+    <h1 class="display-1">留言板注册</h1>
+    <hr>
+    <div class="py-5 bg-light">
+      <form class="container">
+        <div class="row mb-3">
+          <div class="col-md-9">
+            <div class="form-group">
+              <label for="input_name">账号：</label>
+              <input name="zhanghao" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="input_name">昵称：</label>
+              <input name="nickname" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="input_name">密码：</label>
+              <input name="pwd" type="text" class="form-control">
+            </div>
+            <div class="form-group">
+              <label for="input_name">确认密码：</label>
+              <input type="text" class="form-control">
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="form-group">
+              <label class="w-100" for="input_avatar">
+                <span class="d-block mb-2">头像</span>
+                <img class="img-thumbnail w-100" src="./assets/avatar.png" alt="Member avatar">
+              </label>
+              <input name="picture" type="file" class="form-control-file" id="input_avatar" aria-describedby="input_avatar_label">
+              <small id="input_avatar_label" class="form-text text-muted">Upload a picture.</small>
+            </div>
+          </div>
+        </div>
+        <button type="button" class="btn btn-primary btn-block">注册</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    //给图片的框添加change事件，当文件域的内容发生变化后，会触发
+    $('#input_avatar').change(function () {
+      //文件对象，直接使用this，因为this是DOM对象
+      var fileobj = this.files[0];
+      // 2. 使用URL.createObjectURL方法，可以为图片临时生成一个连接，通过这个链接可以查看到图片
+      var url = URL.createObjectURL(fileobj);
+      $('.img-thumbnail').attr('src', url);
+    })
+  </script>
+  <!-- 注册事件的功能实现 -->
+  <script>
+    $('button').click(function () {
+      // 获取表单数据
+      var fd = new FormData($('form')[0]);
+      // 通过ajax技术的向服务器发送服务器
+      $.ajax({
+        url: '/regUser',
+        type: 'post',
+        data: fd,
+        success: function (res) {
+          if (res === 'ok') {
+            alert('注册成功'); 
+            location.href='/message.html';
+          } else if (res === 'fail') {
+            alert('注册失败'); 
+          }
+        },
+        contentType:false,
+        processData:false
+      });
+    });
+  </script>
+</body>
+
+</html>
